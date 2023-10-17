@@ -1,0 +1,30 @@
+<!-- views/products.hbs -->
+
+<h1>Lista de Productos</h1>
+
+{{#each products}}
+  <div>
+    <h2>{{title}}</h2>
+    <p>{{description}}</p>
+    <p>Precio: ${{price}}</p>
+    <button onclick="addToCart('{{_id}}', '{{cartId}}')">Agregar al Carrito</button>
+  </div>
+{{/each}}
+
+<script>
+  function addToCart(productId, cartId) {
+    fetch(`/api/carts/${cartId}/product/${productId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Éxito al agregar al carrito:', data);
+    })
+    .catch(error => {
+      console.error('Error al agregar al carrito:', error);
+    });
+  }
+</script>
