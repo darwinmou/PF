@@ -1,6 +1,9 @@
-<!-- views/products.hbs -->
-
 <h1>Lista de Productos</h1>
+{{#if user}}
+  <p>Bienvenido, {{user.email}} (Rol: {{user.role}})</p>
+  <button onclick="logout()">Cerrar Sesión</button>
+{{/if}}
+
 
 {{#each products}}
   <div>
@@ -12,19 +15,23 @@
 {{/each}}
 
 <script>
-  function addToCart(productId, cartId) {
-    fetch(`/api/carts/${cartId}/product/${productId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+
+  function logout() {
+    fetch('/logout', {
+      method: 'GET',
     })
     .then(response => response.json())
     .then(data => {
-      console.log('Éxito al agregar al carrito:', data);
+      console.log(data)
+      if (data.success) {
+        window.location.href = '/login';
+      } else {
+        console.error('Error al cerrar sesión:', data.error);
+      }
     })
     .catch(error => {
-      console.error('Error al agregar al carrito:', error);
+      console.log(error)
+      console.error('Error al cerrar sesión:', error);
     });
   }
 </script>
