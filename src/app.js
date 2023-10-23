@@ -38,34 +38,14 @@ store.on('error', function(error) {
 app.use(require('express-session')({
   secret: 'djmou.2023*s3cret',
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
+    maxAge: 1000 * 60 * 60 * 24 * 7 
   },
   store: store,
   resave: true,
   saveUninitialized: true
 }));
 
-// app.use(
-//   session({
-//     store: new MongoStore({
-//       url: uri,
-//     }),
-//     secret: 'djmou.2023*s3cret',
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { maxAge: 3600000 },
-//   })
-// );
 
-// app.use(
-//   session({
-//     store: new FileStore({ path: 'sessions', reapInterval: -1 }), // Ruta al directorio de sesiones
-//     secret: 'djmou.2023*s3cret', // Clave secreta para firmar cookies de sesión
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { maxAge: 3600000 }, // Tiempo de vida de la sesión en milisegundos
-//   })
-// );
 
 app.get('/login', (req, res) => {
   res.render('login.hbs');
@@ -74,19 +54,19 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 console.log("login", email, password)
-  // Verifica las credenciales del usuario
+ 
   if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') {
-    // Usuario con rol de administrador
+  
     req.session.user = { email, role: 'admin' };
-    res.redirect('/products'); // Redirige a la vista de productos
+    res.redirect('/products'); 
   } else {
-    // Usuario normal
+    
     req.session.user = { email, role: 'usuario' };
-    res.redirect('/products'); // Redirige a la vista de productos
+    res.redirect('/products'); 
   }
 });
 
-// Ruta para mostrar la vista de productos
+
 app.get('/products', async (req, res) => {
   const user = req.session.user;
   const products = await productsModel.find();
