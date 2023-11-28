@@ -11,20 +11,9 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, require: true }
 });
 
-const cartSchema = new mongoose.Schema({
-  products: [
-    {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "products",
-        // required: true
-      },
-      quantity: { type: Number, required: true }
-    }
-  ]
-});
+
 
 const productsModel = mongoose.model("products", productSchema);
-const cartsModel = mongoose.model("carts", cartSchema);
 
-module.exports = { productsModel, cartsModel };
+
+module.exports = productsModel;

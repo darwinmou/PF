@@ -1,22 +1,26 @@
 require('dotenv').config()
 const express = require("express")
+const bodyParser = require('body-parser');
 const app = express()
 const PORT = 8080
 const path = require("path")
 const handlebars = require("express-handlebars")
-const products = require("./routes/products.js")
-const carts = require("./routes/carts.js")
+const products = require("./routes/productsRoutes.js")
+const cartsRoutes = require('./routes/cartsRoutes');
 const mongoose = require('mongoose');
 const uri = `mongodb+srv://djmou:${process.env.DB_PASSWORD}@dcontreras.bv4xdut.mongodb.net/ecommerce?retryWrites=true&w=majority`
-const { productsModel, cartsModel } = require('./models/products.model.js')
+const productsModel = require('./models/products.model.js')
+const cartsModel = require("./models/carts.model.js")
 const session = require('express-session');
 MongoDBStore = require('connect-mongodb-session')(session);
+
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use("/api/products", products);
-app.use("/api/carts", carts)
-
+app.use("/api/carts", cartsRoutes)
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.engine("handlebars", handlebars.engine())
 
