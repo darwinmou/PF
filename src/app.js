@@ -9,9 +9,67 @@ const products = require("./routes/productsRoutes.js")
 const cartsRoutes = require('./routes/cartsRoutes');
 const mongoose = require('mongoose');
 const uri = `mongodb+srv://djmou:${process.env.DB_PASSWORD}@dcontreras.bv4xdut.mongodb.net/ecommerce?retryWrites=true&w=majority`
-const productsModel = require('./models/products.model.js')
+// const productsModel = require('./models/products.model.js')
 const cartsModel = require("./models/carts.model.js")
 const session = require('express-session');
+
+//A partir de aqui es toda la logica del video de Passport Avanzado
+const cookieParser = require("cookie-parser")
+const jwt = require("jsonwebtoken");
+const passport = require('passport');
+const JwtStrategy = require("passport-jwt").Strategy
+const ExtractJwt = require("passport-jwt").ExtractJwt
+const users = [
+   {id: 1, email: "text@example.com", password: "password123"} 
+]
+
+const jwtOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: "secret-key"
+}
+
+passport.use(
+  new JwtStrategy(jwtOptions,(jwt_payload, done) => {
+    const user = users.find((user) => user.email === jwt_payload.email)
+    if(!user){
+      return done(null, false, {message: "Usuario no encontrado"})
+    }
+
+    return done(null, user)
+  })
+)
+
+//middlewars
+app.use(express.json())
+app.use(express.static("public"))
+app.use(cookieParser())
+app.use(passport.initialize())
+const requireAuth = passport.authenticate('jwt', { session: false });
+
+//Ruta de autenticacion cob JWT
+
+app.post("/login", (req,res) => {
+  const {email, password} = req.body
+
+  //Simular verificacion de credenciales
+  const user = users.find((user) => user.email === email)
+
+  if (!user || user.password !== password) {
+    return res.status(401).json({message: "Error de autenticacion"})
+    
+  }
+
+  app.get('/current', requireAuth, (req, res) => {
+    res.json(req.user); // req.user contendrá la información del usuario obtenida del token JWT
+  });
+
+  //Si las crecenciales son validas genero el JWT 
+  const token = jwt.sign({email}, "secret-key", {expiresIn: "24h"})
+  res.cookie("token", token, {httpOnly: true, maxAge: 24*60*60*1000})
+  console.log(token);
+  res.json({token})
+})
+
 MongoDBStore = require('connect-mongodb-session')(session);
 
 

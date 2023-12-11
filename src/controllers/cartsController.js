@@ -1,7 +1,5 @@
-// cartsController.js
-
-const cartsModel = require('../models/cartsModel');
-const productsModel = require('../models/productsModel');
+const cartsModel = require("../models/carts.model");
+const productsModel = require('../models/products.model');
 const ticketsModel = require("../models/tickets.model")
 
 // Controlador para crear un carrito vacío
