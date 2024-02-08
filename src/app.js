@@ -6,14 +6,16 @@ const PORT = 8080
 const path = require("path")
 const handlebars = require("express-handlebars")
 const products = require("./routes/productsRoutes.js")
+const productsModel = require('./models/products.model.js');
 const cartsRoutes = require('./routes/cartsRoutes');
+
 const mongoose = require('mongoose');
-const uri = `mongodb+srv://djmou:${process.env.DB_PASSWORD}@dcontreras.bv4xdut.mongodb.net/ecommerce?retryWrites=true&w=majority`
+const uri = `mongodb://djmou:${process.env.DB_PASSWORD}@ac-wt2jlti-shard-00-00.bv4xdut.mongodb.net:27017,ac-wt2jlti-shard-00-01.bv4xdut.mongodb.net:27017,ac-wt2jlti-shard-00-02.bv4xdut.mongodb.net:27017/?ssl=true&replicaSet=atlas-hpwkxf-shard-0&authSource=admin&retryWrites=true&w=majority`
 // const productsModel = require('./models/products.model.js')
 const cartsModel = require("./models/carts.model.js")
 const session = require('express-session');
 
-//A partir de aqui es toda la logica del video de Passport Avanzado
+
 const cookieParser = require("cookie-parser")
 const jwt = require("jsonwebtoken");
 const passport = require('passport');
@@ -40,6 +42,7 @@ passport.use(
 )
 
 //middlewars
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 app.use(express.static("public"))
 app.use(cookieParser())
@@ -78,7 +81,6 @@ app.use(express.urlencoded({extended: true}))
 app.use("/api/products", products);
 app.use("/api/carts", cartsRoutes)
 app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: true }));
 
 app.engine("handlebars", handlebars.engine())
 
@@ -113,9 +115,14 @@ app.get('/login', (req, res) => {
   res.render('login.hbs');
 });
 
+app.get('/register', (req, res) => {
+  res.render('register.hbs'); 
+});
+
+
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-console.log("login", email, password)
+
  
   if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') {
   
@@ -143,7 +150,6 @@ app.get('/products', async (req, res) => {
 
 // Ruta para cerrar sesión
 app.get('/logout', (req, res) => {
-  console.log(req.session)
   req.session.destroy(err => {
     if (err) {
       console.error(err);
