@@ -21,7 +21,7 @@ exports.registerUser = async (req, res) => {
   
       // Inicia sesión automáticamente después del registro
       req.session.user = { username: newUser.username, role: newUser.role };
-      res.redirect('/products'); // Redirige a la vista de productos
+      res.redirect('/login'); // Redirige a la vista de productos
     } catch (error) {
       console.error('Error al registrar usuario:', error);
       res.render('register.hbs', { error: 'Error al registrar usuario' });

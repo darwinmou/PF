@@ -3,75 +3,23 @@ const express = require("express")
 const bodyParser = require('body-parser');
 const app = express()
 const PORT = 8080
-const path = require("path")
 const handlebars = require("express-handlebars")
 const products = require("./routes/productsRoutes.js")
 const productsModel = require('./models/products.model.js');
 const cartsRoutes = require('./routes/cartsRoutes');
-
+const usersRoutes = require("./routes/usersRoutes.js")
 const mongoose = require('mongoose');
-const uri = `mongodb://djmou:${process.env.DB_PASSWORD}@ac-wt2jlti-shard-00-00.bv4xdut.mongodb.net:27017,ac-wt2jlti-shard-00-01.bv4xdut.mongodb.net:27017,ac-wt2jlti-shard-00-02.bv4xdut.mongodb.net:27017/?ssl=true&replicaSet=atlas-hpwkxf-shard-0&authSource=admin&retryWrites=true&w=majority`
-// const productsModel = require('./models/products.model.js')
-const cartsModel = require("./models/carts.model.js")
+const uri = `mongodb+srv://djmou:${process.env.DB_PASSWORD}@dcontreras.bv4xdut.mongodb.net/ecommerce?retryWrites=true&w=majority`
 const session = require('express-session');
-
+const bcrypt = require("bcrypt")
 
 const cookieParser = require("cookie-parser")
-const jwt = require("jsonwebtoken");
-const passport = require('passport');
-const JwtStrategy = require("passport-jwt").Strategy
-const ExtractJwt = require("passport-jwt").ExtractJwt
-const users = [
-   {id: 1, email: "text@example.com", password: "password123"} 
-]
+const UserModel = require('./models/users.model.js');
 
-const jwtOptions = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: "secret-key"
-}
-
-passport.use(
-  new JwtStrategy(jwtOptions,(jwt_payload, done) => {
-    const user = users.find((user) => user.email === jwt_payload.email)
-    if(!user){
-      return done(null, false, {message: "Usuario no encontrado"})
-    }
-
-    return done(null, user)
-  })
-)
-
-//middlewars
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 app.use(express.static("public"))
 app.use(cookieParser())
-app.use(passport.initialize())
-const requireAuth = passport.authenticate('jwt', { session: false });
-
-//Ruta de autenticacion cob JWT
-
-app.post("/login", (req,res) => {
-  const {email, password} = req.body
-
-  //Simular verificacion de credenciales
-  const user = users.find((user) => user.email === email)
-
-  if (!user || user.password !== password) {
-    return res.status(401).json({message: "Error de autenticacion"})
-    
-  }
-
-  app.get('/current', requireAuth, (req, res) => {
-    res.json(req.user); // req.user contendrá la información del usuario obtenida del token JWT
-  });
-
-  //Si las crecenciales son validas genero el JWT 
-  const token = jwt.sign({email}, "secret-key", {expiresIn: "24h"})
-  res.cookie("token", token, {httpOnly: true, maxAge: 24*60*60*1000})
-  console.log(token);
-  res.json({token})
-})
 
 MongoDBStore = require('connect-mongodb-session')(session);
 
@@ -80,6 +28,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use("/api/products", products);
 app.use("/api/carts", cartsRoutes)
+app.use("/api/users", usersRoutes)
 app.use(bodyParser.json());
 
 app.engine("handlebars", handlebars.engine())
@@ -115,23 +64,48 @@ app.get('/login', (req, res) => {
   res.render('login.hbs');
 });
 
+app.post("/login", async (req,res) => {
+  const {email, password} = req.body
+
+  const user = await UserModel.findOne({username: email})
+  const hashedPassword = await bcrypt.compare(password, user.password);
+
+  console.log(user);
+  if (!user || !hashedPassword) {
+    return res.status(401).json({message: "Error de autenticacion"})
+    
+  }
+
+  req.session.user = { username: user.username };
+  res.redirect('/products');
+})
+
 app.get('/register', (req, res) => {
   res.render('register.hbs'); 
 });
 
-
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-
- 
-  if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') {
+app.post('/register', async (req, res) => {
+  const { username, password, role } = req.body;
   
-    req.session.user = { email, role: 'admin' };
-    res.redirect('/products'); 
-  } else {
-    
-    req.session.user = { email, role: 'usuario' };
-    res.redirect('/products'); 
+  try {
+    const existingUser = await UserModel.findOne({ username });
+
+    if (existingUser) {
+      return res.render('register.hbs', { error: 'El nombre de usuario ya está registrado' });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const newUser = new UserModel({ username, password: hashedPassword, role });
+    await newUser.save(); 
+
+    req.session.user = { username: newUser.username, role: newUser.role };
+    res.redirect('/login');
+
+  } catch (error) {
+    console.error('Error al registrar usuario:', error);
+    res.render('register.hbs', { error: 'Error al registrar usuario' });
   }
 });
 
@@ -139,6 +113,7 @@ app.post('/login', (req, res) => {
 app.get('/products', async (req, res) => {
   const user = req.session.user;
   const products = await productsModel.find();
+
   if (user) {
     // Usuario autenticado
     res.render('products.hbs', { user, products });
@@ -148,7 +123,6 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// Ruta para cerrar sesión
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {

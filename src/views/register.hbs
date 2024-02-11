@@ -4,10 +4,17 @@
 <h1>Registro de Usuario</h1>
 <form method="post" action="/register">
   <label for="username">Correo Electrónico: </label>
-  <input type="text" name="username" id="username" required />
+  <input type="email" name="username" id="username" required />
   <br />
   <label for="password">Contraseña</label>
   <input type="password" name="password" id="password" required />
+  <br />
+  <label for="role">Rol:</label>
+  <select name="role" id="role" required>
+    <option value="user">Usuario Normal</option>
+    <option value="premium">Usuario Premium</option>
+    <option value="admin">Administrador</option>
+  </select>
   <br />
   <button type="submit">Registrar</button>
 </form>
