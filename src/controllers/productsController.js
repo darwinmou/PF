@@ -1,5 +1,8 @@
+require('dotenv').config()
 const productsModel = require("../models/products.model");
+const userModel = require("../models/users.model")
 const { validateProduct } = require("../utils.js/validations");
+const nodemailer = require('nodemailer');
 
 exports.getProducts = async (req, res) => {
   try {
@@ -81,14 +84,48 @@ exports.getProductById = async (req, res) => {
   };
 
   exports.deleteProduct = async (req, res) => {
-    const id = req.params.pid;
+    const productId = req.params.pid;
   
     try {
-      const response = await productsModel.deleteOne({ _id: id });
-      console.log(response);
-      response.deletedCount && res.json({ message: 'Producto eliminado exitosamente' });
+      const premiumUsers = await userModel.find({ role: 'premium' });
+  
+      const deletionResponse = await productsModel.deleteOne({ _id: productId });
+  
+      if (deletionResponse.deletedCount) {
+        let transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            type: 'OAuth2',
+            user: process.env.MAIL_USERNAME,
+            pass: process.env.MAIL_PASSWORD,
+            clientId: process.env.OAUTH_CLIENTID,
+            clientSecret: process.env.OAUTH_CLIENT_SECRET,
+            refreshToken: process.env.OAUTH_REFRESH_TOKEN
+          }
+        });
+  
+        const mailOptions = {
+          from: process.env.MAIL_USERNAME,
+          subject: 'Producto Eliminado',
+          text: `Estimado usuario premium,\n\nEl producto ha sido eliminado.\n\nSaludos, \nEquipo de la aplicación`
+        };
+  
+        for (const user of premiumUsers) {
+          mailOptions.to = user.username;
+          try {
+            await transporter.sendMail(mailOptions);
+            console.log(`Correo enviado a ${user.username}`);
+          } catch (error) {
+            console.error(`Error al enviar correo a ${user.username}:`, error);
+          }
+        }
+  
+        res.json({ message: 'Producto eliminado exitosamente y correos enviados a usuarios premium' });
+      } else {
+        res.status(404).json({ error: 'Producto no encontrado' });
+      }
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Ocurrió un error al borrar' });
+      res.status(500).json({ error: 'Ocurrió un error al borrar el producto' });
     }
   };

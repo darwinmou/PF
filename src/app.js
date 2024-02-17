@@ -67,16 +67,23 @@ app.get('/login', (req, res) => {
 app.post("/login", async (req,res) => {
   const {email, password} = req.body
 
-  const user = await UserModel.findOne({username: email})
-  const hashedPassword = await bcrypt.compare(password, user.password);
+  const user = await UserModel.findOneAndUpdate(
+    { username: email }, 
+    { $set: { lastConnection: new Date() } },
+    { new: true }
+  );
 
-  console.log(user);
-  if (!user || !hashedPassword) {
-    return res.status(401).json({message: "Error de autenticacion"})
+  if (!user) {
+    return res.status(404).json({message: "Usuario no encontrado"})
     
   }
+  
+  const hashedPassword = await bcrypt.compare(password, user.password);
+  if (!hashedPassword) {
+    return res.status(401).json({message: "Error de autenticacion"})
+  }
 
-  req.session.user = { username: user.username };
+  req.session.user = { username: user.username, role: user.role };
   res.redirect('/products');
 })
 

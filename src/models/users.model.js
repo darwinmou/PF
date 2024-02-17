@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String,
   role: String,
+  lastConnection: { type: Date, default: null },
 });
 
 userSchema.plugin(passportLocalMongoose);
