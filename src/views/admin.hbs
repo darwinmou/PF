@@ -1,0 +1,52 @@
+
+    <h1>Panel de Administrador</h1>
+    {{#if user}}
+  <p>Bienvenido administrador {{user.email}} </p>
+  <button onclick="logout()">Cerrar Sesión</button>
+{{/if}}
+    {{#if users}}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                    <tr>
+                        <td>{{username}}</td>
+                        <td>{{role}}</td>
+                        <td>
+                            <a href="/admin/users/{{_id}}/edit">Editar </a>
+                            <a href="/admin/users/{{_id}}/delete">Eliminar</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <p>No hay usuarios disponibles.</p>
+    {{/if}}
+<script>
+
+  function logout() {
+    fetch('/logout', {
+      method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      if (data.success) {
+        window.location.href = '/login';
+      } else {
+        console.error('Error al cerrar sesión:', data.error);
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      console.error('Error al cerrar sesión:', error);
+    });
+  }
+</script>

@@ -30,33 +30,7 @@ exports.registerUser = async (req, res) => {
     }
   };
 
-  exports.loginUser = async (req, res) => {
-    const { username, password } = req.body;
-  
-    try {
-      // Busca el usuario en la base de datos por su dirección de correo electrónico
-      const user = await userModel.findOne({ username });
-  
-      if (!user) {
-        return res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
-      }
-  
-      // Compara la contraseña ingresada con la contraseña hasheada almacenada en la base de datos
-      const passwordsMatch = await bcrypt.compare(password, user.password);
-  
-      if (passwordsMatch) {
-        // Contraseña válida, inicia sesión
-        req.session.user = { username: user.username, role: user.role };
-        res.redirect('/products');
-      } else {
-        // Contraseña incorrecta
-        res.status(401).json({ success: false, error: 'Credenciales incorrectas' });
-      }
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
-      res.status(500).json({ success: false, error: 'Error al iniciar sesión' });
-    }
-  }
+
 
   exports.logoutUser = (req, res) => {
     console.log(req.session)

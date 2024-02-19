@@ -8,6 +8,9 @@ const products = require("./routes/productsRoutes.js")
 const productsModel = require('./models/products.model.js');
 const cartsRoutes = require('./routes/cartsRoutes');
 const usersRoutes = require("./routes/usersRoutes.js")
+const adminRoutes = require("./routes/adminRoutes.js")
+const viewsRoutes = require('./routes/viewsRoutes');
+
 const mongoose = require('mongoose');
 const uri = `mongodb+srv://djmou:${process.env.DB_PASSWORD}@dcontreras.bv4xdut.mongodb.net/ecommerce?retryWrites=true&w=majority`
 const session = require('express-session');
@@ -26,9 +29,8 @@ MongoDBStore = require('connect-mongodb-session')(session);
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
-app.use("/api/products", products);
-app.use("/api/carts", cartsRoutes)
-app.use("/api/users", usersRoutes)
+
+
 app.use(bodyParser.json());
 
 app.engine("handlebars", handlebars.engine())
@@ -59,87 +61,11 @@ app.use(require('express-session')({
 }));
 
 
-
-app.get('/login', (req, res) => {
-  res.render('login.hbs');
-});
-
-app.post("/login", async (req,res) => {
-  const {email, password} = req.body
-
-  const user = await UserModel.findOneAndUpdate(
-    { username: email }, 
-    { $set: { lastConnection: new Date() } },
-    { new: true }
-  );
-
-  if (!user) {
-    return res.status(404).json({message: "Usuario no encontrado"})
-    
-  }
-  
-  const hashedPassword = await bcrypt.compare(password, user.password);
-  if (!hashedPassword) {
-    return res.status(401).json({message: "Error de autenticacion"})
-  }
-
-  req.session.user = { username: user.username, role: user.role };
-  res.redirect('/products');
-})
-
-app.get('/register', (req, res) => {
-  res.render('register.hbs'); 
-});
-
-app.post('/register', async (req, res) => {
-  const { username, password, role } = req.body;
-  
-  try {
-    const existingUser = await UserModel.findOne({ username });
-
-    if (existingUser) {
-      return res.render('register.hbs', { error: 'El nombre de usuario ya está registrado' });
-    }
-
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    const newUser = new UserModel({ username, password: hashedPassword, role });
-    await newUser.save(); 
-
-    req.session.user = { username: newUser.username, role: newUser.role };
-    res.redirect('/login');
-
-  } catch (error) {
-    console.error('Error al registrar usuario:', error);
-    res.render('register.hbs', { error: 'Error al registrar usuario' });
-  }
-});
-
-
-app.get('/products', async (req, res) => {
-  const user = req.session.user;
-  const products = await productsModel.find();
-
-  if (user) {
-    // Usuario autenticado
-    res.render('products.hbs', { user, products });
-  } else {
-    // Usuario no autenticado
-    res.redirect('/login'); // Redirige al inicio de sesión
-  }
-});
-
-app.get('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ success: false, error: 'Error al cerrar sesión' });
-    } else {
-      res.json({ success: true });
-    }
-  });
-});
+app.use("/api/products", products);
+app.use("/api/carts", cartsRoutes)
+app.use("/api/users", usersRoutes)
+app.use("/api/admin", adminRoutes)
+app.use('/', viewsRoutes);
 
 
 mongoose.connect(uri).then(()=>console.log("Conectado a la base de datos"))

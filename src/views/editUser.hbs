@@ -1,0 +1,40 @@
+
+    <h1>Editar Usuario</h1>
+
+        <label for="username">Nombre de Usuario:</label>
+        <input type="text" id="username" name="username" value="{{user.username}}" required />
+
+        <label>Rol:</label>
+        <select name="role" id="role" required>
+            <option value="normal">Usuario Normal</option>
+            <option value="premium">Usuario Premium</option>
+            <option value="admin">Administrador</option>
+        </select>
+        <button onclick="updateUser()">Guardar Cambios</button>
+<script>
+  function updateUser() {
+    const userId = '{{user._id}}';  // Asegúrate de tener disponible el ID del usuario en tu página
+    const username = document.getElementById('username').value;
+    const role = document.getElementById('role').value;
+
+    fetch(`/api/admin/${userId}/edit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, role }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+            if (data.success) {
+        window.location.href = '/admin/dashboard';
+      } else {
+        console.error('Error al actualizar usuario:', data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error al actualizar usuario:', error);
+    });
+  }
+</script>
