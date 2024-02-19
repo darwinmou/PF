@@ -71,7 +71,7 @@ app.use('/', viewsRoutes);
 mongoose.connect(uri).then(()=>console.log("Conectado a la base de datos"))
 .catch(e => console.log("Error al conectar con la base de datos", e))
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server escuchando en el puerto ${PORT}`);
 })
 
