@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const viewController = require('../controllers/viewController');
 
-// router.get('/', viewController.home); TO-DO
+router.get('/', viewController.login);
 router.get('/login', viewController.login);
 router.post('/login', viewController.loginUser);
 router.get('/logout', viewController.logout);
