@@ -55,34 +55,68 @@ La aplicación estará disponible en `http://localhost:8080`.
 
 La aplicación cuenta con los siguientes endpoints:
 
-### Productos
+**Rutas Disponibles**
 
-- `GET /api/products`: Obtener la lista de productos.
-- `POST /api/products`: Crear un nuevo producto.
-- `GET /api/products/:productId`: Obtener detalles de un producto específico.
-- `PUT /api/products/:productId`: Actualizar un producto.
-- `DELETE /api/products/:productId`: Eliminar un producto.
+- **Productos:**
+  - Listar todos los productos: `GET /api/products`
+  - Obtener un producto por ID: `GET /api/products/:pid`
+  - Agregar un nuevo producto: `POST /api/products`
+  - Actualizar un producto por ID: `PUT /api/products/:pid`
+  - Eliminar un producto por ID: `DELETE /api/products/:pid`
 
-### Usuarios
+- **Carritos de Compras:**
+  - Crear un carrito vacío: `POST /api/carts`
+  - Obtener un carrito por ID: `GET /api/carts/:cid`
+  - Agregar un producto al carrito: `POST /api/carts/:cid/product/:pid`
+  - Eliminar un producto del carrito: `DELETE /api/carts/:cid/product/:pid`
+  - Actualizar un carrito por ID: `PUT /api/carts/:cid`
+  - Actualizar la cantidad de un producto en el carrito: `PUT /api/carts/:cid/products/:pid`
+  - Eliminar todos los productos del carrito: `DELETE /api/carts/:cid`
+  - Comprar productos en el carrito: `POST /api/carts/:cid/purchase`
 
-- `GET /api/users`: Obtener la lista de todos los usuarios.
-- `GET /api/users/:userId`: Obtener detalles de un usuario específico.
-- `DELETE /api/users/inactive`: Eliminar usuarios inactivos.
+- **Usuarios:**
+  - Listar todos los usuarios: `GET /api/users`
+  - Obtener un usuario por ID: `GET /api/users/:id`
+  - Eliminar usuarios inactivos: `DELETE /api/users/inactive`
 
-- `POST /api/register`: Registrar un nuevo usuario.
-- `POST /api/login`: Iniciar sesión.
-- `GET /api/logout`: Cerrar sesión.
+- **Administrador:**
+  - Confirmar actualización de un producto: `POST /admin/:id/edit`
+  - Confirmar eliminación de un producto: `DELETE /admin/:id/delete`
 
-### Carritos de Compra
+- **Vistas:**
+  - Página de inicio de sesión: `GET /login`
+  - Iniciar sesión: `POST /login`
+  - Cerrar sesión: `GET /logout`
+  - Página de registro: `GET /register`
+  - Registrar usuario: `POST /register`
+  - Listar todos los productos: `GET /products`
+  - Página de administrador: `GET /admin/dashboard`
+  - Editar usuario (página de administrador): `GET /admin/users/:id/edit`
+  - Confirmar eliminación de usuario (página de administrador): `GET /admin/users/:id/delete`
 
-- `POST /api/carts`: Crear un carrito vacío.
-- `GET /api/carts/:cartId`: Obtener detalles de un carrito específico.
-- `POST /api/carts/:cartId/product/:productId`: Agregar un producto al carrito.
-- `DELETE /api/carts/:cartId/product/:productId`: Eliminar un producto del carrito.
-- `PUT /api/carts/:cartId`: Actualizar el carrito.
-- `PUT /api/carts/:cartId/products/:productId`: Actualizar la cantidad de un producto en el carrito.
-- `DELETE /api/carts/:cartId`: Eliminar todos los productos del carrito.
-- `POST /api/carts/:cartId/purchase`: Realizar la compra del carrito.
+**Oportunidades de Mejora (TODO List):**
+
+- **Estilos y Estética:**
+  - Mejorar el diseño y la presentación visual de la aplicación.
+
+- **Catalogo de productos:**
+  - Implementar un sistema de administración de productos disponibles en el catalogo.
+
+- **Sistema de Tickets:**
+  - Implementar un sistema de tickets para realizar seguimiento de compras.
+
+- **Persistencia del Carrito de Compras:**
+  - Agregar persistencia al carrito de compras para mantener los productos incluso después de cerrar sesión o recargar la página.
+
+- **Otros:**
+  - Mejorar la usabilidad y la experiencia del usuario.
+  - Implementar manejo de errores más robusto.
+  - Refactorizar y organizar el código para una mejor mantenibilidad.
+  - Agregar validaciones de seguridad, como correos válidos
+  - Recuperación de contraseña
+
+**Enlace a la Aplicación Desplegada:**
+[PF en Railway](https://pf-production-darwinmou.up.railway.app/)
 
 ## Pruebas
 
