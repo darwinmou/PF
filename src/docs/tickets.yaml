@@ -1,0 +1,130 @@
+paths:
+  /api/tickets:
+    post:
+      summary: Crear un nuevo ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: Código único del ticket
+                amount:
+                  type: number
+                  description: Monto del ticket
+                purchaser:
+                  type: string
+                  description: Comprador del ticket
+              required:
+                - code
+                - amount
+                - purchaser
+      responses:
+        '201':
+          description: Ticket creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Ya existe un ticket con ese código
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Mensaje de error
+
+    get:
+      summary: Obtener todos los tickets
+      responses:
+        '200':
+          description: Lista de tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+
+  /api/tickets/{id}:
+    get:
+      summary: Obtener un ticket por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del ticket a obtener
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ticket encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '404':
+          description: Ticket no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Mensaje de error
+
+    delete:
+      summary: Eliminar un ticket por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del ticket a eliminar
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ticket eliminado exitosamente
+        '404':
+          description: Ticket no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Mensaje de error
+
+components:
+  schemas:
+    Ticket:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID del ticket
+        code:
+          type: string
+          description: Código único del ticket
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación del ticket
+        amount:
+          type: number
+          description: Monto del ticket
+        purchaser:
+          type: string
+          description: Comprador del ticket
+      required:
+        - code
+        - amount
+        - purchaser

@@ -1,0 +1,80 @@
+paths:
+  /api/users:
+    post:
+      summary: Registrar un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: Registro exitoso
+    get:
+      summary: Obtener todos los usuarios
+      responses:
+        '200':
+          description: Éxito
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/users/logout:
+    post:
+      summary: Cerrar sesión de un usuario
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente
+
+
+  /api/users/{id}:
+    get:
+      summary: Obtener un usuario por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Éxito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    
+  /api/users/inactive:
+    delete:
+      summary: Eliminar usuarios inactivos
+      responses:
+        '200':
+          description: Usuarios eliminados correctamente
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+        lastConnection:
+          type: string
+          format: date-time

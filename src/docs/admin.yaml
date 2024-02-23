@@ -1,0 +1,43 @@
+paths:
+  /api/admin/{id}/edit:
+    post:
+      summary: Confirmar actualización de usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Actualización confirmada
+
+  /api/admin/{id}/delete:
+    delete:
+      summary: Confirmar eliminación de usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Eliminación confirmada
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+        lastConnection:
+          type: string
+          format: date-time

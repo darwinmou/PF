@@ -3,6 +3,8 @@ const UserModel = require("../models/users.model")
 const ProductsModel = require("../models/products.model");
 const bcrypt = require("bcrypt")
 const CartsModel = require("../models/carts.model");
+const { generateAndSetToken } = require('../utils.js/jwt');
+
 
 exports.login = (req, res) => {
     res.render('login.hbs');
@@ -27,14 +29,10 @@ exports.loginUser = async (req, res) => {
         return res.status(401).json({ message: "Error de autenticación" });
     }
 
-    req.session.user = { username: user.username, role: user.role };
+    const token = generateAndSetToken(res, email, user.role);  // Aquí se encripta la contraseña antes de usarla
+    console.log(token);
+    res.status(200).json({ token, user: user });
 
-    // Redirige al usuario según su rol
-    if (user.role === "admin") {
-        res.redirect('/admin/dashboard'); // Ruta de la vista de administrador
-    } else {
-        res.redirect('/products'); // Ruta de la vista de productos
-    }
 };
 
 exports.register = (req, res) => {
@@ -64,50 +62,6 @@ exports.registerUser = async (req, res) => {
     } catch (error) {
         console.error('Error al registrar usuario:', error);
         res.render('register.hbs', { error: 'Error al registrar usuario' });
-    }
-};
-
-exports.products = async (req, res) => {
-    const user = req.session.user;
-
-    // Verificar la autenticación del usuario
-    if (user) {
-        // Crear un carrito vacío si el usuario aún no tiene uno
-        if (!user.cartId) {
-            const newCart = new CartsModel({ products: [] });
-            await newCart.save();
-            user.cartId = newCart._id;
-            // Guardar la actualización del usuario en la sesión
-            req.session.user = user;
-
-        } else {
-            const cart = await CartsModel.findById(user.cartId);
-            const productsDetails = await Promise.all(
-                cart.products.map(async (item) => {
-                    const product = await ProductsModel.findById(item.productId);
-
-                    if (!product) {
-                        return null;  // Otra opción sería manejar productos no encontrados de manera diferente
-                    }
-
-                    return {
-                        title: product.title,
-                        price: product.price,
-                        quantity: item.quantity,
-                    };
-                })
-            );
-            const validProductsDetails = productsDetails.filter((product) => product !== null);
-            user.productsInCart = validProductsDetails
-        }
-        console.log(user);
-        // Obtener la lista de productos
-        const products = await ProductsModel.find();
-        // Renderizar la vista con el usuario y los productos
-        res.render('products.hbs', { user, products });
-    } else {
-        // Usuario no autenticado, redirigir al inicio de sesión
-        res.redirect('/login');
     }
 };
 

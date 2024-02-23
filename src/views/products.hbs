@@ -1,13 +1,13 @@
 <h1>Lista de Productos</h1>
-{{#if user}}
-<p>Bienvenido, {{user.username}} (Rol: {{user.role}})</p>
+{{#if userData }}
+<p>Bienvenido, {{userData.email}} (Rol: {{userData.role}})</p>
 <button onclick="logout()">Cerrar Sesión</button>
 {{#each products}}
 <div>
   <h2>{{title}}</h2>
   <p>{{description}}</p>
   <p>Precio: ${{price}}</p>
-  <button onclick="addToCart('{{_id}}', '{{../user.cartId}}')">Agregar al carrito</button>
+  <button onclick="addToCart('{{_id}}', '{{../userData.cartId}}')">Agregar al carrito</button>
 </div>
 {{/each}}
 
@@ -19,7 +19,7 @@
   <li id="cartItem">{{this.title}} - Precio: ${{this.price}}</li>
   {{/each}}
 </ul>
-<button onclick="purchaseCart('{{user.cartId}}')">Comprar</button>
+<button onclick="purchaseCart('{{userData.cartId}}')">Comprar</button>
 
 <script>
   function logout() {
@@ -42,7 +42,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    const cartId = '{{user.cartId}}';
+    const cartId = '{{userData.cartId}}';
     updateCartView(cartId);
   });
 
@@ -109,6 +109,19 @@
 
 
   function purchaseCart(cartId) {
+    const ticketCode = generateTicketCode();
+
+    fetch(`/api/carts/${cartId}/purchase?ticketCode=${ticketCode}`, {
+      method: 'POST',
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Ticket de compra generado: ", ticketCode)
+      })
+      .catch(error => {
+        console.error('Error al realizar la compra:', error);
+      });
+
     fetch(`/api/carts/${cartId}/purchase`, {
       method: 'POST',
     })
@@ -117,7 +130,7 @@
         console.log(data);
 
         if (data.emailSent) {
-          alert('¡Compra exitosa! Se ha enviado un correo electrónico de confirmación.');
+          alert(`¡Compra exitosa! Se ha enviado un correo electrónico de confirmación. Ticket: ${ticketCode}`);
           emptyCart(cartId);
         }
       })
@@ -137,6 +150,19 @@
       .catch(error => {
         console.error('Error al vaciar el carrito:', error);
       });
+  }
+
+    function generateTicketCode() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const codeLength = 8;
+    let code = '';
+
+    for (let i = 0; i < codeLength; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      code += characters.charAt(randomIndex);
+    }
+
+    return code;
   }
 
 </script>

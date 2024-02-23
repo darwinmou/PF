@@ -1,0 +1,161 @@
+paths:
+  /api/carts:
+    post:
+      summary: Crear carrito vacío
+      responses:
+        '200':
+          description: Carrito creado exitosamente
+
+  /api/carts/{cid}:
+    get:
+      summary: Obtener detalles del carrito
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalles del carrito obtenidos exitosamente
+    put:
+      summary: Actualizar carrito
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      quantity:
+                        type: integer
+              required:
+                - products
+      responses:
+        '200':
+          description: Carrito actualizado exitosamente
+    delete:
+      summary: Eliminar todos los productos del carrito
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Todos los productos del carrito eliminados exitosamente
+
+  /api/carts/{cid}/product/{pid}:
+    post:
+      summary: Agregar producto al carrito
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Producto agregado exitosamente al carrito
+    delete:
+      summary: Eliminar producto del carrito
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Producto eliminado exitosamente del carrito
+    put:
+      summary: Actualizar cantidad de producto en el carrito
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type: string
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+              required:
+                - quantity
+      responses:
+        '200':
+          description: Cantidad de producto en el carrito actualizada exitosamente
+
+  /api/carts/{cid}/purchase:
+    post:
+      summary: Realizar compra del carrito
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: ID del carrito
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Proceso de compra finalizado
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        quantity:
+          type: integer
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: string
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'

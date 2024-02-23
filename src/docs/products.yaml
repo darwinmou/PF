@@ -1,0 +1,102 @@
+paths:
+  /api/products:
+    get:
+      summary: Obtener lista de productos
+      parameters:
+        - name: limit
+          in: query
+          description: Número máximo de productos a retornar
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Número de página
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Orden de los resultados (asc o desc)
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Búsqueda de productos por texto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de productos obtenida exitosamente
+    post:
+      summary: Agregar un nuevo producto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Producto agregado exitosamente
+
+  /api/products/{pid}:
+    get:
+      summary: Obtener detalles de un producto por ID
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalles del producto obtenidos exitosamente
+
+    put:
+      summary: Actualizar un producto por ID
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Producto actualizado exitosamente
+
+    delete:
+      summary: Eliminar un producto por ID
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Producto eliminado exitosamente
+
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        stock:
+          type: integer
+      required:
+        - title
+        - price
+        - stock
